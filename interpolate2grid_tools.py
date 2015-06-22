@@ -42,6 +42,7 @@ def extract_NetCDF( arr_file, date=None, format='classic',\
         if debug:
             print f
             print f.variables
+
         # extract data for a given date or assume single dataset if no
         # date given
         if isinstance(date, type(None) ):
@@ -63,18 +64,19 @@ def extract_NetCDF( arr_file, date=None, format='classic',\
             ] )
             # Select given date 
             if debug:
+                print dates
+                print date
                 print data.shape
-            data = data[dates==date,...][0,...]
+            if date in dates:
+                data = data[dates==date,...][0,...]
+            else:
+                print 'ERROR: obs. date not in NetCDF dates: {}'.format( date, dates )
+                print 'STOPPING PROGRAMME, USE SINGLE DATE VERSION OR ADD DATE TO NETCDF'
+                sys.exit( 0)
             if debug:
                 print [ i.shape for i in data, lon, lat ]
 
-            # Kludge - Lon mislabel?
-#            tmp = np.array( lat )
-#            lat = np.array( lon )
-#            lon = lat
-
         lon, lat, data = [ np.array(i) for i in  lon, lat, data ]
-    debug=True
     if debug:
         print [ [type(i), i.shape] for i in lon, lat, data ]
     return data.T, lon, lat
@@ -165,7 +167,8 @@ def var_store( case='sea ice'):
     # Translate case
     case = {
     'chlorophyll' : 0,    
-    'sea ice' : 1 
+    'sea ice' : 1 ,
+    'sea ice full' : 2
     }[case]
 
     if case == 0:
@@ -187,6 +190,17 @@ def var_store( case='sea ice'):
         csv_lat='Latitude[deg+veN]'
         csv_lon='Longitude[deg+veE]'
         csv_time='yyyy-mm-ddThh24:mi[GMT/UT]'
+#        format='classic'
+
+    if case == 2:
+        nc_data='Sea_Ice_Concentration_with_Final_Version'
+        nc_lat='latitude'
+        nc_lon='longitude'
+
+        csv_lat=' seatex-gga-lat (degrees)'
+        csv_lon=' seatex-gga-lon (degrees)'
+#        csv_time='dd/mm/yyyy  hh24:mi:ss'
+        csv_time='Timestamp'
 #        format='classic'
 
     return nc_data, nc_lat, nc_lon, csv_lon, csv_lat, csv_time

@@ -51,8 +51,9 @@ def main( case='chlorophyll', nc_data=None, nc_lat=None,\
 
     # Extract and give output data on a day by day basis ( if mulitdate==True) 
     if multidate:
-        pass
+#        pass
         dates = get_obs_dates( locs_file, csv_time=csv_time) 
+        dates= dates[1:] # Kludge to test for 1st date prior to NetCDF array.
     else:
         # Only process for the single date
         dates = [None]  
@@ -89,7 +90,8 @@ debug=False
 
 # Setup for multidates/Rosie's data ( unhash to set )
 multidate=True
-case='sea ice'
+#case='sea ice'
+case='sea ice full'
 main(multidate=multidate, case=case, debug=debug)
 
 # Setup for single dates/Steve's data ( unhash to set )

@@ -146,16 +146,16 @@ def add_days(sourcedate,days_):
 
 def nan_helper(y):
     """
-    Helper to handle indices and logical indices of NaNs.
-    Input:
-        - y, 1d numpy array with possible NaNs
-    Output:
-        - nans, logical indices of NaNs
-        - index, a function, with signature indices= index(logical_indices),
-          to convert logical indices of NaNs to 'equivalent' indices
-    credit: http://stackoverflow.com/users/579145/eat
+        Helper to handle indices and logical indices of NaNs.
+        Input:
+            - y, 1d numpy array with possible NaNs
+        Output:
+            - nans, logical indices of NaNs
+            - index, a function, with signature indices= index(logical_indices),
+              to convert logical indices of NaNs to 'equivalent' indices
+        credit: http://stackoverflow.com/users/579145/eat
                 
-                  http://stackoverflow.com/questions/6518811/interpolate-nan-values-in-a-numpy-array
+                         http://stackoverflow.com/questions/6518811/interpolate-nan-values-in-a-numpy-array
     """
     return np.isnan(y), lambda z: z.nonzero()[0]
 
@@ -223,8 +223,17 @@ def test_spatial_plot( data, lon, lat, locs, vals, cmap=plt.cm.Greens ):
     plt.show()
 
 
+def find_nearest(array,value):
+    """
+        Find nearest point. Adapted from HappyLeapSecond's Stackoverflow 
+        answer. http://stackoverflow.com/questions/2566412/find-nearest-value-in-numpy-array
+    """
+    idx = (np.abs(array-value)).argmin()
+    return idx
+
 def extract_nearest_point_from_arr( data, lon, lat, locs, date=None, \
-            output_filename='./interpolated_values', debug=False ):
+            output_filename='./interpolated_values', case='chlorophyll', \
+            debug=False ):
     """
         Interpolate data to grid to account for missing data.
         
@@ -252,9 +261,19 @@ LAT+LON: {} '.format( [ list(locs[:,i]) for i in indexs] )
         print [ (i, type(i), i.shape) for i in [locs] ]
     print locs
 
+    # Extract raw data from grid    
+    raw_extract= []
+    for l in range( len( locs[0,:] ) ):
+        glon = find_nearest( np.array(lon), locs[0,l] )
+        glat = find_nearest( np.array(lat), locs[1,l] )        
+        raw_extract.append( data[glon, glat] )
+
+    # add missing data flag for sea ice data
+#    if 'sea ice' in case: 
+#        data[ data==255.] = -9999.0
+
     # Interpolate over given array and create flag array for masked values
     flags  = interpolate_locs2grid( data, lon, lat, locs )
-    raw_extract = flags.copy()
     if debug:
         print flags
     flags[flags>0] = 0
@@ -285,11 +304,12 @@ LAT+LON: {} '.format( [ list(locs[:,i]) for i in indexs] )
     lo,la = np.meshgrid(lon, lat)
     print [i.shape for i in  flags, vals, la.ravel(), lo.ravel() ]
     df = pd.DataFrame( {
-    'Interpolated values': vals, 
     'Longitude':locs[0,:], 
     'Latitude':locs[1,:], 
     'Raw extracted values': raw_extract,
-    'Flag': flags, } )
+    'Flag': flags, 
+    'Interpolated values': vals, 
+    } )
     df.to_csv( output_filename+'.csv' )
     return vals
 

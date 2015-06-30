@@ -74,9 +74,9 @@ def main( case='chlorophyll', nc_data=None, nc_lat=None,\
             print '>'*10, [   [i.min(), i.max(), i.mean(), i.std() ] for i in\
                 [np.ma.array(ii) for ii in lat, lon, data, locs ]  ]
 
-        # Interpolate, save to csv, and return values
+        # Extract, interpolate, save to csv, and return values
         vals = extract_nearest_point_from_arr( data, lon, lat, locs,  \
-            date=date, debug=debug )
+            date=date, case=case, debug=debug )
 
         # Plot up test plot
         if debug:

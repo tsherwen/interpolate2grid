@@ -254,12 +254,13 @@ LAT+LON: {} '.format( [ list(locs[:,i]) for i in indexs] )
 
     # Interpolate over given array and create flag array for masked values
     flags  = interpolate_locs2grid( data, lon, lat, locs )
-    raw_extract =flags
-    print flags
+    raw_extract = flags.copy()
+    if debug:
+        print flags
     flags[flags>0] = 0
     flags[ flags<0] =1
-
-    print flags
+    if debug:
+        print flags
     
     # Interpolate for masked values (those below zero) and provide values 
     if len(data[data<0]) > 0:
@@ -279,7 +280,7 @@ LAT+LON: {} '.format( [ list(locs[:,i]) for i in indexs] )
     if not isinstance( date, type(None) ): 
         output_filename=output_filename+'{}_{}_{}'.format( date.year, \
             date.month, date.day )
-    
+
     print vals.shape
     lo,la = np.meshgrid(lon, lat)
     print [i.shape for i in  flags, vals, la.ravel(), lo.ravel() ]

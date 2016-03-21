@@ -3,12 +3,30 @@
 import numpy as np
 from interpolate2grid_tools import *
 
+# --- Set debug/output setting
+VERBOSE=False
+DEBUG=False
+
+# -- Settings for direct call to driver ('main')
+# Setup for multidates/Rosie's data ( unhash to set )
+#multidate=True
+#case='sea ice full'
+
+# Setup for single dates/Steve's data ( unhash to set )
+#multidate=False
+#case='sea ice'
+
+# Setup for Sea surface temperature (SST) for Sina
+multidate=True                                                                                                                                                                               
+case='SST' 
+
+
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 # ----------  Driver ----------
 def main( case='chlorophyll', nc_data=None, nc_lat=None,\
         nc_lon=None, csv_lon=None, csv_lat=None, csv_time=None,\
-        multidate=False, debug=True):
+        multidate=False, verbose=False, debug=True):
     """ 
     This program calls functions to extract data for a given cruise track 
     from a 2D (lon, lat) array. 
@@ -20,15 +38,17 @@ def main( case='chlorophyll', nc_data=None, nc_lat=None,\
     provided )
 
     -------- README --------
-    Setup output here - change variables names to columns headers 
-    within given files
+    Output is set by arguement variables ( but these are expected to be updated in call. )
+
+    Setup driver call using a new case (add to 'var_store' in  'interpolate2grid_tools.py' ), 
+    ( e.g. change variables names to columns headers within given files)
     
-    Set "debug" to True to output a test plot and information on interpolation.
+    Set "debug" to True to output a test plot and provide information on interpolation.
     
     Set "multidate" to True to output for multiple days
     
-    Set case to be data input (to access stored varible names)
-        e.g. 'sea ice' or 'chlorophyll'
+    Set case to be data input (to access stored variable names)
+        e.g. 'sea ice' or 'chlorophyll' or 'SST' ...
     
     Variables are:
     nc_data : Name of data variable in NetCDF file
@@ -51,7 +71,6 @@ def main( case='chlorophyll', nc_data=None, nc_lat=None,\
 
     # Extract and give output data on a day by day basis ( if mulitdate==True) 
     if multidate:
-#        pass
         dates = get_obs_dates( locs_file, csv_time=csv_time) 
         dates= dates[1:] # Kludge to test for 1st date prior to NetCDF array.
     else:
@@ -84,15 +103,7 @@ def main( case='chlorophyll', nc_data=None, nc_lat=None,\
             
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
-# call to main/driver...
-#debug=True
-debug=False
 
-# Setup for multidates/Rosie's data ( unhash to set )
-multidate=True
-#case='sea ice'
-case='sea ice full'
-main(multidate=multidate, case=case, debug=debug)
-
-# Setup for single dates/Steve's data ( unhash to set )
-#main()
+# Call main driver?
+if __name__ == "__main__":
+    main(multidate=multidate, case=case, verbose=VERBOSE, debug=DEBUG)
